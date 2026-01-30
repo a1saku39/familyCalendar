@@ -1,12 +1,18 @@
 // ========================================
-// Family Calendar - Google Apps Script
+// 共有設定（ここを埋めると確実です）
 // ========================================
+const SPREADSHEET_ID = ''; // 空のままでも動きますが、共有したい場合は作成されたシートのIDをここに貼ってください
 
 // スプレッドシートIDを取得または作成
 function getOrCreateSpreadsheetId() {
+  // 1. 固定のIDがあればそれを使う
+  if (SPREADSHEET_ID) return SPREADSHEET_ID;
+
+  // 2. スクリプトプロパティから取得
   let ssId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
   
   if (!ssId) {
+    // 3. なければ新規作成
     ssId = setupSpreadsheet();
   }
   
@@ -82,7 +88,26 @@ function getSpreadsheet() {
 // Eventsシートを取得
 function getEventsSheet() {
   const ss = getSpreadsheet();
-  return ss.getSheetByName('Events');
+  let sheet = ss.getSheetByName('Events');
+  
+  if (!sheet) {
+    Logger.log('Eventsシートが見つからないため作成します');
+    sheet = ss.insertSheet('Events');
+    setupSheetHeaders(sheet);
+  }
+  
+  return sheet;
+}
+
+// ヘッダーのみを設定する内部関数
+function setupSheetHeaders(sheet) {
+  sheet.getRange(1, 1, 1, 7).setValues([
+    ['ID', 'タイトル', '日付', '時間', 'カテゴリー', '説明', '作成日時']
+  ]);
+  sheet.getRange(1, 1, 1, 7)
+    .setFontWeight('bold')
+    .setBackground('#4a5568')
+    .setFontColor('#ffffff');
 }
 
 // ========================================
@@ -140,10 +165,7 @@ function addEvent(eventData) {
     };
   } catch (error) {
     Logger.log('addEvent error: ' + error);
-    return {
-      success: false,
-      message: 'エラー: ' + error.message
-    };
+    throw new Error('書き込み失敗: ' + error.toString());
   }
 }
 
