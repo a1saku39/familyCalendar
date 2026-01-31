@@ -182,7 +182,27 @@
     </script>
 
     <script>
+        var scriptLoaded = false;
+    </script>
+
+    <script>
         <?!= include('script'); ?>
+            scriptLoaded = true;
+    </script>
+
+    <script>
+        if (!scriptLoaded) {
+            var errorMsg = "【重要】プログラム（script_GAS）が読み込めませんでした。\n\n" +
+                "考えられる原因：\n" +
+                "1. GASエディタで「script_GAS」というファイルがない（または名前が違う）\n" +
+                "2. 「script_GAS」がHTMLファイルではなくスクリプトファイル(.gs)として作成されている\n" +
+                "3. コード内に構文エラーがある\n\n" +
+                "GASエディタを確認してください。";
+            console.error(errorMsg);
+            alert(errorMsg);
+            // ローディングを強制的に消してメッセージを見やすくする
+            document.getElementById('loading').style.display = 'none';
+        }
     </script>
 </body>
 
