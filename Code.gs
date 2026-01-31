@@ -151,7 +151,7 @@ function addEvent(eventData) {
     sheet.appendRow([
       id,
       eventData.title,
-      new Date(eventData.date),
+      "'" + eventData.date, // 文字列として強制的に保存（日付のズレ防止）
       eventData.time || '',
       eventData.category,
       eventData.description || '',
@@ -186,7 +186,7 @@ function updateEvent(eventData) {
         const rowNumber = i + 2;
         sheet.getRange(rowNumber, 2, 1, 5).setValues([[
           eventData.title,
-          new Date(eventData.date),
+          "'" + eventData.date, // 文字列として保存
           eventData.time || '',
           eventData.category,
           eventData.description || ''
