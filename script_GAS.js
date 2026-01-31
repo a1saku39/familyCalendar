@@ -50,6 +50,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSidebarDate();
         setupEventListeners();
         loadEvents();
+        fetchSpreadsheetUrl(); // スプレッドシートの場所を確認
+    }
+
+    function fetchSpreadsheetUrl() {
+        google.script.run.withSuccessHandler(url => {
+            console.log('Database Spreadsheet URL:', url);
+            // デバッグ用にコンソールに出力。必要に応じてUIにも表示可能
+        }).getSpreadsheetUrl();
     }
 
     function loadEvents() {
@@ -354,8 +362,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function onSaveSuccess(response) {
+        console.log('Save success:', response);
         closeModal();
         loadEvents(); // Reload all events
+        alert('予定を保存しました！');
     }
 
     function deleteEvent() {
