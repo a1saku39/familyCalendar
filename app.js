@@ -267,16 +267,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayDiv = document.createElement('div');
             dayDiv.classList.add('day');
 
+            const currentDateObj = new Date(year, month, i);
+
             if (i === new Date().getDate() &&
                 year === new Date().getFullYear() &&
                 month === new Date().getMonth()) {
                 dayDiv.classList.add('today');
             }
 
+            // 祝日判定
+            let holidayName = '';
+            if (typeof JapaneseHolidays !== 'undefined') {
+                holidayName = JapaneseHolidays.isHoliday(currentDateObj);
+                if (holidayName) {
+                    dayDiv.classList.add('holiday');
+                }
+            }
+
             const headerDiv = document.createElement('div');
             headerDiv.classList.add('day-header');
             headerDiv.textContent = i;
             dayDiv.appendChild(headerDiv);
+
+            // 祝日名の表示
+            if (holidayName) {
+                const holidayDiv = document.createElement('div');
+                holidayDiv.classList.add('holiday-name');
+                holidayDiv.textContent = holidayName;
+                dayDiv.appendChild(holidayDiv);
+            }
 
             const eventsDiv = document.createElement('div');
             eventsDiv.classList.add('day-events');
