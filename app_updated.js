@@ -50,19 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingDiv = document.getElementById('loading');
     const statusMessage = document.getElementById('statusMessage');
 
-<<<<<<< HEAD
-=======
-    // Settings
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsModal = document.getElementById('settingsModal');
-    const closeSettingsBtn = document.getElementById('closeSettings');
-    const gasUrlInput = document.getElementById('gasUrl');
-    const saveSettingsBtn = document.getElementById('saveSettings');
-
-    const loadingDiv = document.getElementById('loading');
-    const statusMessage = document.getElementById('statusMessage');
-
->>>>>>> a2bc2bd29a99704664531903def23d4a22f1a391
     // --- Initialization ---
     try {
         init();
@@ -204,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         eventForm.addEventListener('submit', handleEventSubmit);
         deleteEventBtn.addEventListener('click', deleteEvent);
 
-<<<<<<< HEAD
         // Multi-day checkbox
         isMultiDayCheckbox.addEventListener('change', (e) => {
             if (e.target.checked) {
@@ -217,8 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-=======
->>>>>>> a2bc2bd29a99704664531903def23d4a22f1a391
         // Settings
         settingsBtn.addEventListener('click', openSettingsModal);
         closeSettingsBtn.addEventListener('click', closeSettingsModal);
@@ -468,28 +452,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!title || !startDate) return;
 
-<<<<<<< HEAD
         // 連続する予定の場合、終了日のバリデーション
         if (isMultiDay && (!endDate || endDate < startDate)) {
             showMessage('終了日は開始日以降を指定してください', 'error');
             return;
         }
-=======
-        const eventData = {
-            id: id,
-            title: title,
-            date: date,
-            time: time,
-            description: description,
-            category: category
-        };
->>>>>>> a2bc2bd29a99704664531903def23d4a22f1a391
 
         showLoading();
 
         try {
             if (id) {
-<<<<<<< HEAD
                 // Update (既存の予定の更新)
                 const eventData = {
                     id: id,
@@ -539,15 +511,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     await callGasApi('addEvent', eventData);
                     showMessage('予定を追加しました！', 'success');
                 }
-=======
-                // Update
-                await callGasApi('updateEvent', eventData);
-                showMessage('予定を更新しました！', 'success');
-            } else {
-                // Create
-                await callGasApi('addEvent', eventData);
-                showMessage('予定を追加しました！', 'success');
->>>>>>> a2bc2bd29a99704664531903def23d4a22f1a391
             }
 
             closeModal();

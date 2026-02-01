@@ -7,12 +7,14 @@
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-highlight: rgba(255, 255, 255, 0.05);
 
+    --accent-family: #3b82f6;
+    /* Blue */
+    --accent-school: #10b981;
+    /* Emerald */
     --accent-work: #f59e0b;
-    /* Amber - 仕事 */
-    --accent-personal: #3b82f6;
-    /* Blue - 各自の予定 */
-    --accent-common: #10b981;
-    /* Emerald - 共通の予定 */
+    /* Amber */
+    --accent-birthday: #ec4899;
+    /* Pink */
 
     --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
     --blob-1: #4f46e5;
@@ -270,16 +272,20 @@ body {
     background: #fff;
 }
 
+.dot.family {
+    background: var(--accent-family);
+}
+
+.dot.school {
+    background: var(--accent-school);
+}
+
 .dot.work {
     background: var(--accent-work);
 }
 
-.dot.personal {
-    background: var(--accent-personal);
-}
-
-.dot.common {
-    background: var(--accent-common);
+.dot.birthday {
+    background: var(--accent-birthday);
 }
 
 .events-list {
@@ -485,16 +491,20 @@ body {
     line-height: 1.5;
 }
 
+.event-pill.family {
+    background: var(--accent-family);
+}
+
+.event-pill.school {
+    background: var(--accent-school);
+}
+
 .event-pill.work {
     background: var(--accent-work);
 }
 
-.event-pill.personal {
-    background: var(--accent-personal);
-}
-
-.event-pill.common {
-    background: var(--accent-common);
+.event-pill.birthday {
+    background: var(--accent-birthday);
 }
 
 /* Modal */
@@ -620,18 +630,23 @@ body {
     transition: all 0.2s;
 }
 
+.category-selector input:checked+.cat-label.family {
+    background: var(--accent-family);
+    color: white;
+}
+
+.category-selector input:checked+.cat-label.school {
+    background: var(--accent-school);
+    color: white;
+}
+
 .category-selector input:checked+.cat-label.work {
     background: var(--accent-work);
     color: white;
 }
 
-.category-selector input:checked+.cat-label.personal {
-    background: var(--accent-personal);
-    color: white;
-}
-
-.category-selector input:checked+.cat-label.common {
-    background: var(--accent-common);
+.category-selector input:checked+.cat-label.birthday {
+    background: var(--accent-birthday);
     color: white;
 }
 
