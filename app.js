@@ -275,13 +275,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 dayDiv.classList.add('today');
             }
 
-            // 祝日判定
+            // 祝日・休日判定
             let holidayName = '';
+            const dayOfWeek = currentDateObj.getDay();
+
             if (typeof JapaneseHolidays !== 'undefined') {
                 holidayName = JapaneseHolidays.isHoliday(currentDateObj);
                 if (holidayName) {
                     dayDiv.classList.add('holiday');
                 }
+            }
+
+            // 土日のクラス付与
+            if (dayOfWeek === 0) {
+                dayDiv.classList.add('sun');
+            } else if (dayOfWeek === 6) {
+                dayDiv.classList.add('sat');
             }
 
             const headerDiv = document.createElement('div');
@@ -302,13 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const dateString = formatDateString(year, month, i);
             const dayEvents = getEventsForDate(dateString);
-
             dayEvents.forEach(evt => {
                 if (currentFilter !== 'all' && evt.category !== currentFilter) return;
 
                 const pill = document.createElement('div');
-                pill.classList.add('event-pill', evt.category);
-                pill.textContent = evt.title;
+                // categoryクラス（daddy/mommy）を付与して色分け
+                pill.classList.add('event-pill', evt.category || 'daddy');
+
+                pill.innerHTML = (evt.time ? `<span class="event-time">${evt.time}～</span>` : '') + evt.title;
                 pill.title = evt.title + (evt.time ? ` (${evt.time})` : '');
 
                 pill.addEventListener('click', (e) => {
@@ -416,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             eventDescInput.value = eventObj.description || '';
 
             eventCategoryInputs.forEach(input => {
-                if (input.value === eventObj.category) input.checked = true;
+                if (input.value === (eventObj.category || 'daddy')) input.checked = true;
             });
 
             deleteEventBtn.classList.remove('hidden');
@@ -426,7 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
             eventForm.reset();
             deleteEventBtn.classList.add('hidden');
 
-            document.getElementById('cat-work').checked = true;
+            // デフォルトはパパに設定
+            const daddyInput = document.getElementById('cat-daddy');
+            if (daddyInput) daddyInput.checked = true;
 
             if (dateObj) {
                 const year = dateObj.getFullYear();
@@ -467,7 +479,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMultiDay = isMultiDayCheckbox.checked;
         const time = eventTimeInput.value;
         const description = eventDescInput.value;
-        const category = document.querySelector('input[name="category"]:checked').value;
+        const categoryInput = document.querySelector('input[name="category"]:checked');
+        const category = categoryInput ? categoryInput.value : 'daddy';
 
         if (!title || !startDate) return;
 

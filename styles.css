@@ -7,17 +7,108 @@
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-highlight: rgba(255, 255, 255, 0.05);
 
-    --accent-work: #f59e0b;
-    /* Amber - 仕事 */
-    --accent-personal: #3b82f6;
-    /* Blue - 各自の予定 */
-    --accent-common: #10b981;
-    /* Emerald - 共通の予定 */
+    --accent-daddy: #3b82f6;
+    /* Blue */
+    --accent-mommy: #ef4444;
+    /* Red */
 
     --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
     --blob-1: #4f46e5;
     --blob-2: #db2777;
     --blob-3: #0ea5e9;
+}
+
+/* Category Dots in Sidebar */
+.dot.daddy {
+    background: #3b82f6;
+}
+
+.dot.mommy {
+    background: #ef4444;
+}
+
+.dot.common {
+    background: #10b981;
+}
+
+/* Event Pills in Calendar */
+.event-pill.daddy {
+    background: #3b82f6 !important;
+    color: white !important;
+    border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.event-pill.mommy {
+    background: #ef4444 !important;
+    color: white !important;
+    border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.event-pill.common {
+    background: #10b981 !important;
+    color: white !important;
+    border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Modal Inputs */
+.cat-label.daddy {
+    color: #3b82f6;
+    border: 1px solid #3b82f6;
+}
+
+.cat-label.mommy {
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.cat-label.common {
+    color: #10b981;
+    border: 1px solid #10b981;
+}
+
+input[type="radio"]:checked+.cat-label.daddy {
+    background: #3b82f6 !important;
+    color: white !important;
+}
+
+input[type="radio"]:checked+.cat-label.mommy {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+input[type="radio"]:checked+.cat-label.common {
+    background: #10b981 !important;
+    color: white !important;
+}
+
+
+/* Base Styles */
+
+/* Color Dots */
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dot.all {
+    background: #fff;
+}
+
+/* Event Pills */
+.event-pill.child {
+    background: var(--owner-child);
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.event-pill.family {
+    background: var(--owner-family);
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Category Colors (Fallback) */
+.event-pill.work {
+    background: var(--accent-work);
 }
 
 /* ===========================
@@ -52,21 +143,42 @@
     align-items: center;
 }
 
-/* 祝日スタイル */
+/* 祝日・土日スタイル */
 .day.holiday .day-header {
+    background: white;
+    /* バック色を白 */
     color: #ef4444;
-    /* Red */
+    /* 文字を赤字 */
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .holiday-name {
     font-size: 0.7rem;
     color: #ef4444;
-    width: 100%;
-    text-align: center;
-    margin-top: 2px;
+    background: white;
+    /* 祝日名も白背景に赤文字で見やすく */
+    border-radius: 4px;
+    padding: 0 4px;
+    width: fit-content;
+    margin: 2px auto 0;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+/* 日曜日 (ピンク) */
+.day.sun .day-header {
+    color: #ff69b4;
+    /* Pink */
+}
+
+/* 土曜日 (水色) */
+.day.sat .day-header {
+    color: #00bfff;
+    /* Deep Sky Blue */
 }
 
 .settings-btn:hover {
@@ -481,7 +593,7 @@ body {
 }
 
 .event-pill {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     padding: 2px 6px;
     border-radius: 4px;
     white-space: nowrap;
@@ -493,6 +605,14 @@ body {
     cursor: pointer;
     transition: transform 0.1s;
 }
+
+.event-time {
+    font-size: 0.72rem;
+    opacity: 0.9;
+    font-weight: 500;
+    margin-right: 4px;
+}
+
 
 .event-pill:hover {
     transform: scale(1.02);
@@ -687,4 +807,35 @@ body {
 
 .hidden {
     display: none;
+}
+
+/* Owner Selector Styles */
+.owner-selector input:checked+.owner-label {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    font-weight: bold;
+}
+
+.owner-selector input:checked+.owner-label.daddy {
+    color: var(--owner-daddy);
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-color: var(--owner-daddy) !important;
+}
+
+.owner-selector input:checked+.owner-label.mommy {
+    color: var(--owner-mommy);
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: var(--owner-mommy) !important;
+}
+
+.owner-selector input:checked+.owner-label.child {
+    color: var(--owner-child);
+    background: rgba(34, 197, 94, 0.1) !important;
+    border-color: var(--owner-child) !important;
+}
+
+.owner-selector input:checked+.owner-label.family {
+    color: var(--owner-family);
+    background: rgba(249, 115, 22, 0.1) !important;
+    border-color: var(--owner-family) !important;
 }

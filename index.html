@@ -73,22 +73,22 @@
 
             <nav class="categories">
                 <h3>カテゴリー</h3>
-                <ul>
+                <ul class="categories-list">
                     <li class="category-item active" data-category="all">
                         <span class="dot all"></span>
                         <span class="label">すべて</span>
                     </li>
-                    <li class="category-item" data-category="work">
-                        <span class="dot work"></span>
-                        <span class="label">仕事</span>
+                    <li class="category-item" data-category="daddy">
+                        <span class="dot daddy"></span>
+                        <span class="label">部長</span>
                     </li>
-                    <li class="category-item" data-category="personal">
-                        <span class="dot personal"></span>
-                        <span class="label">各自の予定</span>
+                    <li class="category-item" data-category="mommy">
+                        <span class="dot mommy"></span>
+                        <span class="label">社長</span>
                     </li>
                     <li class="category-item" data-category="common">
                         <span class="dot common"></span>
-                        <span class="label">共通の予定</span>
+                        <span class="label">共通</span>
                     </li>
                 </ul>
             </nav>
@@ -163,16 +163,22 @@
                     <input type="text" id="eventTitle" placeholder="予定のタイトル (例: 買い物)" required>
                 </div>
                 <div class="form-group">
-                    <label for="eventCategory">カテゴリー</label>
-                    <div class="category-selector">
-                        <input type="radio" name="category" id="cat-work" value="work" checked>
-                        <label for="cat-work" class="cat-label work">仕事</label>
+                    <label>担当</label>
+                    <div class="category-selector" style="display: flex; gap: 10px;">
+                        <input type="radio" name="category" id="cat-daddy" value="daddy" checked>
+                        <label for="cat-daddy" class="cat-label daddy"
+                            style="flex: 1; text-align: center; border-radius: 20px; padding: 10px; font-size: 0.9rem;">👨
+                            部長</label>
 
-                        <input type="radio" name="category" id="cat-personal" value="personal">
-                        <label for="cat-personal" class="cat-label personal">各自の予定</label>
+                        <input type="radio" name="category" id="cat-mommy" value="mommy">
+                        <label for="cat-mommy" class="cat-label mommy"
+                            style="flex: 1; text-align: center; border-radius: 20px; padding: 10px; font-size: 0.9rem;">👩
+                            社長</label>
 
                         <input type="radio" name="category" id="cat-common" value="common">
-                        <label for="cat-common" class="cat-label common">共通の予定</label>
+                        <label for="cat-common" class="cat-label common"
+                            style="flex: 1; text-align: center; border-radius: 20px; padding: 10px; font-size: 0.9rem;">🏠
+                            共通</label>
                     </div>
                 </div>
                 <div class="form-group">

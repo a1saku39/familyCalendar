@@ -149,16 +149,17 @@ function handleGetAllEvents() {
       return { result: 'success', data: [] };
     }
     
-    const data = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
+    const data = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
     
     const events = data.map(row => ({
       id: row[0],
       title: row[1],
       date: formatDateToString(row[2]),
-      time: row[3],
+      time: formatTimeToString(row[3]),
       category: row[4],
       description: row[5],
-      createdAt: row[6]
+      createdAt: row[6],
+      owner: row[7] || 'family'
     })).filter(event => event.id);
     
     return { result: 'success', data: events };
@@ -181,7 +182,8 @@ function handleAddEvent(requestData) {
       requestData.time || '',
       requestData.category,
       requestData.description || '',
-      now
+      now,
+      requestData.owner || 'family' // 担当者を追加
     ]);
     
     return {
@@ -213,12 +215,13 @@ function handleAddEvents(requestData) {
       evt.time || '',
       evt.category,
       evt.description || '',
-      now
+      now,
+      evt.owner || 'family' // 担当者を追加
     ]);
     
     // まとめて書き込み (パフォーマンス向上とロック競合回避)
     if (rows.length > 0) {
-        sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, 7).setValues(rows);
+        sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, 8).setValues(rows);
     }
     
     return {
@@ -246,13 +249,21 @@ function handleUpdateEvent(requestData) {
     for (let i = 0; i < data.length; i++) {
       if (data[i][0] === requestData.id) {
         const rowNumber = i + 2;
+        // 列数が増えたので範囲を拡張 (5列 -> 7列: title, date, time, category, desc, createdAt(skip), owner)
+        // update時は created_at(Col 7) は触らないので、Col 8(Owner)を個別に更新するか、範囲を工夫する
+        // ここでは簡単なsetValuesを使うため、descriptionまでと、ownerを分けて更新する
+        
+        // 基本情報更新
         sheet.getRange(rowNumber, 2, 1, 5).setValues([[
           requestData.title,
-          "'" + requestData.date, // 文字列として保存
+          "'" + requestData.date,
           requestData.time || '',
           requestData.category,
           requestData.description || ''
         ]]);
+        
+        // Owner更新 (Col 8)
+        sheet.getRange(rowNumber, 8).setValue(requestData.owner || 'family');
         
         return {
           result: 'success',
@@ -332,4 +343,25 @@ function formatDateToString(date) {
   const day = String(d.getDate()).padStart(2, '0');
   
   return `${year}-${month}-${day}`;
+}
+
+function formatTimeToString(time) {
+  if (!time) return '';
+  if (typeof time === 'string') {
+    // すでに正しい形式ならそのまま、ISO形式なら時刻だけ抽出
+    if (time.includes('T')) {
+      const parts = time.split('T')[1].split(':');
+      return `${parts[0]}:${parts[1]}`;
+    }
+    return time;
+  }
+  
+  try {
+    const t = new Date(time);
+    const hours = String(t.getHours()).padStart(2, '0');
+    const minutes = String(t.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  } catch (e) {
+    return String(time);
+  }
 }
