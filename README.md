@@ -1,98 +1,86 @@
-# Family Calendar 📅
+# 📅 Family Calendar
 
-家族で共有できるモダンなカレンダーアプリケーション
+家族で共有できる美しいカレンダーアプリケーションです。
 
-## 概要
+![Family Calendar](https://img.shields.io/badge/Status-Active-success)
+![Platform](https://img.shields.io/badge/Platform-Web-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-Family Calendarは、家族の予定を一元管理し、誰でもどこからでもアクセスできるように設計されたカレンダーアプリです。
+## ✨ 特徴
 
-### 主な機能
+- 📱 **レスポンシブデザイン** - スマホ、タブレット、PCに対応
+- 🎨 **美しいUI** - モダンなグラスモーフィズムデザイン
+- 👨‍👩‍👧‍👦 **家族で共有** - 全員が同じカレンダーを閲覧・編集可能
+- 🏷️ **カテゴリー分類** - 家族、学校、仕事、記念日で色分け
+- 📝 **詳細メモ** - 各予定に時間やメモを追加可能
+- 💾 **自動保存** - Google スプレッドシートに自動保存
 
-✨ **美しいUI** - グラスモーフィズムとダークモードで洗練されたデザイン  
-📱 **レスポンシブ** - PC、スマホ、タブレットに対応  
-🎨 **カテゴリー分け** - 家族、学校、仕事、記念日で色分け  
-☁️ **クラウド同期** - Google スプレッドシートで家族全員とリアルタイム共有  
-🔒 **安全** - Googleアカウントで認証可能
+## 🚀 使い方
 
-## ファイル構成
+### 1. アクセス
 
-### オリジナル版（ローカル環境用）
-- `index.html` - メインHTMLファイル
-- `styles.css` - スタイルシート
-- `app.js` - JavaScriptロジック（localStorageを使用）
-- `walkthrough.md` - 使い方ガイド
-
-### Google Apps Script版（クラウド共有用）
-- `Code.gs` - サーバーサイドコード
-- `index_GAS.html` - GAS用HTMLファイル
-- `script_GAS.js` - GAS用JavaScriptファイル
-- `styles.css` - スタイルシート（共通）
-- `GAS_SETUP.md` - **詳細なセットアップガイド**
-
-## 使い方
-
-### ローカル環境で試す場合
-
-1. `index.html` をブラウザで開く
-2. 予定を追加・編集・削除できます
-3. データはブラウザのlocalStorageに保存されます（端末ごとに独立）
-
-### 家族で共有する場合（推奨）
-
-**`GAS_SETUP.md` を参照してください。**
-
-簡単な流れ：
-1. Google Apps Scriptプロジェクトを作成
-2. 必要なファイルをアップロード
-3. ウェブアプリとしてデプロイ
-4. 発行されたURLを家族と共有
-
-詳細な手順は **GAS_SETUP.md** に記載されています。
-
-## スクリーンショット
-
-カレンダーの特徴：
-- 月曜日始まりのカレンダー表示
-- カテゴリーごとに色分けされた予定
-- サイドバーで直近の予定を確認
-- モーダルで簡単に予定を追加・編集
-
-## 技術スタック
-
-- **フロントエンド**: HTML, CSS, JavaScript（Vanilla）
-- **バックエンド**: Google Apps Script
-- **データベース**: Google Spreadsheet
-- **フォント**: Google Fonts (Outfit, Zen Kaku Gothic New)
-- **アイコン**: Font Awesome
-
-## カスタマイズ
-
-### カテゴリーを追加したい場合
-
-1. `index_GAS.html` でカテゴリーのUI要素を追加
-2. `styles.css` で色を定義
-3. 必要に応じて `Code.gs` のデータ構造を調整
-
-### デザインを変更したい場合
-
-`styles.css` の以下の変数を編集：
-```css
-:root {
-    --accent-family: #3b82f6;   /* 家族の色 */
-    --accent-school: #10b981;   /* 学校の色 */
-    --accent-work: #f59e0b;     /* 仕事の色 */
-    --accent-birthday: #ec4899; /* 記念日の色 */
-}
+公開されたURLにアクセスします:
+```
+https://yourusername.github.io/family-calendar/
 ```
 
-## ライセンス
+### 2. 初回設定
 
-このプロジェクトは個人・家族での使用を目的としています。
+1. 右上の⚙️（設定）ボタンをクリック
+2. Google Apps Script のURLを入力
+3. 「保存」をクリック
 
-## サポート
+### 3. 予定の追加
 
-質問やバグ報告がある場合は、プロジェクトの作成者に連絡してください。
+1. カレンダーの日付をクリック、または「予定を追加」ボタンをクリック
+2. タイトル、カテゴリー、時間、メモを入力
+3. 「保存」をクリック
+
+## 📱 スマホで使う
+
+### ホーム画面に追加（推奨）
+
+**iPhone (Safari)**
+1. 下部の「共有」ボタン → 「ホーム画面に追加」
+
+**Android (Chrome)**
+1. メニュー（⋮）→ 「ホーム画面に追加」
+
+アプリのように使えます！
+
+## 🛠️ 技術スタック
+
+- **フロントエンド**: HTML5, CSS3, JavaScript (Vanilla)
+- **バックエンド**: Google Apps Script
+- **データベース**: Google Spreadsheet
+- **ホスティング**: GitHub Pages
+- **デザイン**: Glassmorphism, Google Fonts (Outfit, Zen Kaku Gothic New)
+
+## 📂 ファイル構成
+
+```
+family-calendar/
+├── index.html      # メインHTML
+├── app.js          # アプリケーションロジック
+├── styles.css      # スタイルシート
+├── DEPLOYMENT_GUIDE.md  # 公開手順
+└── README.md       # このファイル
+```
+
+## 🔐 セキュリティ
+
+- URLを知っている人なら誰でもアクセス可能です
+- 家族以外にURLを共有しないでください
+- より強固なセキュリティが必要な場合は、認証機能の追加を検討してください
+
+## 📄 ライセンス
+
+MIT License - 自由に使用・改変できます
+
+## 🙏 サポート
+
+問題が発生した場合は、[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)のトラブルシューティングセクションを参照してください。
 
 ---
 
-家族で楽しく予定を共有しましょう！ 🎉
+**家族の大切な時間を、もっと楽しく** 💖

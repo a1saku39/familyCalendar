@@ -1,9 +1,14 @@
+// ========================================
+// Family Calendar - Client Script (API版)
+// ========================================
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
-    let currentDate = new Date(); // The month currently being viewed
-    let selectedDate = null; // The specific date clicked
-    let events = JSON.parse(localStorage.getItem('familyCalendarEvents')) || [];
+    let currentDate = new Date();
+    let selectedDate = null;
+    let events = [];
     let currentFilter = 'all';
+    let gasApiUrl = localStorage.getItem('familyCalendar_gas_url') || '';
 
     // --- DOM Elements ---
     const calendarDays = document.getElementById('calendarDays');
@@ -32,17 +37,114 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('modalTitle');
     const deleteEventBtn = document.getElementById('deleteEventBtn');
 
-    // --- Initialization ---
-    init();
+    // Settings
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettingsBtn = document.getElementById('closeSettings');
+    const gasUrlInput = document.getElementById('gasUrl');
+    const saveSettingsBtn = document.getElementById('saveSettings');
 
-    function init() {
-        renderCalendar();
-        updateSidebarDate();
-        renderUpcomingEvents();
-        setupEventListeners();
+    const loadingDiv = document.getElementById('loading');
+    const statusMessage = document.getElementById('statusMessage');
+
+    // --- Initialization ---
+    try {
+        init();
+    } catch (e) {
+        console.error('Initialization error:', e);
+        hideLoading();
     }
 
-    // --- Core Logic ---
+    function init() {
+        console.log('Initializing calendar...');
+
+        // 設定の読み込み
+        if (gasApiUrl) {
+            gasUrlInput.value = gasApiUrl;
+        }
+
+        updateSidebarDate();
+        renderCalendar();
+        setupEventListeners();
+
+        // GAS URLが設定されていれば自動的にイベントを読み込む
+        if (gasApiUrl) {
+            loadEvents();
+        } else {
+            hideLoading();
+            showMessage('設定からGASアプリのURLを設定してください', 'error');
+        }
+    }
+
+    // --- API通信関数 ---
+
+    async function callGasApi(action, data = {}) {
+        if (!gasApiUrl) {
+            throw new Error('GASアプリのURLが設定されていません');
+        }
+
+        const requestData = {
+            action: action,
+            ...data
+        };
+
+        try {
+            const response = await fetch(gasApiUrl, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            if (result.result === 'error') {
+                throw new Error(result.message || 'サーバーエラー');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+
+    async function loadEvents() {
+        showLoading();
+        try {
+            const result = await callGasApi('getAllEvents');
+            events = result.data || [];
+            hideLoading();
+            renderCalendar();
+            renderUpcomingEvents();
+        } catch (error) {
+            hideLoading();
+            showMessage('データの読み込みに失敗しました: ' + error.message, 'error');
+        }
+    }
+
+    function showLoading() {
+        if (loadingDiv) loadingDiv.style.display = 'flex';
+    }
+
+    function hideLoading() {
+        if (loadingDiv) loadingDiv.style.display = 'none';
+    }
+
+    function showMessage(msg, type) {
+        if (statusMessage) {
+            statusMessage.textContent = msg;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'block';
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // --- Event Listeners ---
 
     function setupEventListeners() {
         // Navigation
@@ -64,60 +166,80 @@ document.addEventListener('DOMContentLoaded', () => {
         // Categories
         categoryItems.forEach(item => {
             item.addEventListener('click', () => {
-                // Update UI
                 categoryItems.forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
-
-                // Update Filter
                 currentFilter = item.dataset.category;
                 renderCalendar();
                 renderUpcomingEvents();
             });
         });
 
-        // Modal triggers
+        // Modal
         addEventSideBtn.addEventListener('click', () => {
-            // Default to today
             openModal(new Date());
         });
 
         closeModalBtn.addEventListener('click', closeModal);
         window.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
+            if (e.target === settingsModal) closeSettingsModal();
         });
 
-        // Form Submit
         eventForm.addEventListener('submit', handleEventSubmit);
-
-        // Delete Event
         deleteEventBtn.addEventListener('click', deleteEvent);
+
+        // Settings
+        settingsBtn.addEventListener('click', openSettingsModal);
+        closeSettingsBtn.addEventListener('click', closeSettingsModal);
+        saveSettingsBtn.addEventListener('click', saveSettings);
     }
+
+    // --- Settings Modal ---
+
+    function openSettingsModal() {
+        settingsModal.classList.add('open');
+    }
+
+    function closeSettingsModal() {
+        settingsModal.classList.remove('open');
+    }
+
+    function saveSettings() {
+        const url = gasUrlInput.value.trim();
+        if (url) {
+            localStorage.setItem('familyCalendar_gas_url', url);
+            gasApiUrl = url;
+            showMessage('設定を保存しました', 'success');
+            closeSettingsModal();
+
+            // 設定保存後、自動的にイベントを読み込む
+            loadEvents();
+        } else {
+            showMessage('URLを入力してください', 'error');
+        }
+    }
+
+    // --- Calendar Rendering ---
 
     function renderCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
 
-        // Update Header
         currentRequestMonthLabel.textContent = `${year}年 ${month + 1}月`;
-
-        // Clear Grid
         calendarDays.innerHTML = '';
 
-        // Calculate Days
-        let firstDayIndex = new Date(year, month, 1).getDay(); // 0 (Sun) - 6 (Sat)
-        // Adjust for Monday start: Mon=0, ..., Sun=6
-        firstDayIndex = (firstDayIndex + 6) % 7;
+        let firstDayIndex = new Date(year, month, 1).getDay();
+        firstDayIndex = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
 
         const lastDay = new Date(year, month + 1, 0).getDate();
         const prevLastDay = new Date(year, month, 0).getDate();
 
         let lastDayIndex = new Date(year, month + 1, 0).getDay();
-        // Adjust for Monday start
-        lastDayIndex = (lastDayIndex + 6) % 7;
+        lastDayIndex = (lastDayIndex === 0) ? 6 : lastDayIndex - 1;
 
         const nextDays = 7 - lastDayIndex - 1;
 
-        // Previous Month Filler
+        // Previous month filler
         for (let x = firstDayIndex; x > 0; x--) {
             const dayDiv = document.createElement('div');
             dayDiv.classList.add('day', 'prev-date');
@@ -125,29 +247,25 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarDays.appendChild(dayDiv);
         }
 
-        // Current Month Days
+        // Current month days
         for (let i = 1; i <= lastDay; i++) {
             const dayDiv = document.createElement('div');
             dayDiv.classList.add('day');
 
-            // Check if Today
             if (i === new Date().getDate() &&
                 year === new Date().getFullYear() &&
                 month === new Date().getMonth()) {
                 dayDiv.classList.add('today');
             }
 
-            // Day Header
             const headerDiv = document.createElement('div');
             headerDiv.classList.add('day-header');
             headerDiv.textContent = i;
             dayDiv.appendChild(headerDiv);
 
-            // Events container
             const eventsDiv = document.createElement('div');
             eventsDiv.classList.add('day-events');
 
-            // Get events for this day
             const dateString = formatDateString(year, month, i);
             const dayEvents = getEventsForDate(dateString);
 
@@ -160,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pill.title = evt.title + (evt.time ? ` (${evt.time})` : '');
 
                 pill.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent opening new event modal
+                    e.stopPropagation();
                     openModal(null, evt);
                 });
 
@@ -169,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             dayDiv.appendChild(eventsDiv);
 
-            // Click to add event
             dayDiv.addEventListener('click', () => {
                 const clickedDate = new Date(year, month, i);
                 openModal(clickedDate);
@@ -178,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarDays.appendChild(dayDiv);
         }
 
-        // Next Month Filler
+        // Next month filler
         for (let j = 1; j <= nextDays; j++) {
             const dayDiv = document.createElement('div');
             dayDiv.classList.add('day', 'next-date');
@@ -198,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderUpcomingEvents() {
         upcomingEventsList.innerHTML = '';
 
-        // Get future events, sort by date
         const nowStr = new Date().toISOString().split('T')[0];
 
         const futureEvents = events.filter(evt => {
@@ -216,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Show max 5 items
         futureEvents.slice(0, 5).forEach(evt => {
             const el = document.createElement('div');
             el.classList.add('event-card-mini');
@@ -253,40 +368,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}-${m}-${d}`;
     }
 
-    function saveEvents() {
-        localStorage.setItem('familyCalendarEvents', JSON.stringify(events));
-        renderCalendar();
-        renderUpcomingEvents();
-    }
-
     // --- Modal Logic ---
 
     function openModal(dateObj = null, eventObj = null) {
         modal.classList.add('open');
 
         if (eventObj) {
-            // Edit Mode
             modalTitle.textContent = '予定を編集';
             eventIdInput.value = eventObj.id;
             eventTitleInput.value = eventObj.title;
             eventDateInput.value = eventObj.date;
-            eventTimeInput.value = eventObj.time;
-            eventDescInput.value = eventObj.description;
+            eventTimeInput.value = eventObj.time || '';
+            eventDescInput.value = eventObj.description || '';
 
-            // Set Radio
             eventCategoryInputs.forEach(input => {
                 if (input.value === eventObj.category) input.checked = true;
             });
 
             deleteEventBtn.classList.remove('hidden');
         } else {
-            // Add Mode
             modalTitle.textContent = '予定を追加';
             eventIdInput.value = '';
             eventForm.reset();
             deleteEventBtn.classList.add('hidden');
 
-            // Reset to default category
             document.getElementById('cat-family').checked = true;
 
             if (dateObj) {
@@ -304,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('open');
     }
 
-    function handleEventSubmit(e) {
+    async function handleEventSubmit(e) {
         e.preventDefault();
 
         const id = eventIdInput.value;
@@ -316,37 +421,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!title || !date) return;
 
-        if (id) {
-            // Update existing
-            const index = events.findIndex(evt => evt.id === id);
-            if (index !== -1) {
-                events[index] = { ...events[index], title, date, time, description, category };
-            }
-        } else {
-            // Create new
-            const newEvent = {
-                id: Date.now().toString(),
-                title,
-                date,
-                time,
-                description,
-                category
-            };
-            events.push(newEvent);
-        }
+        const eventData = {
+            id: id,
+            title: title,
+            date: date,
+            time: time,
+            description: description,
+            category: category
+        };
 
-        saveEvents();
-        closeModal();
+        showLoading();
+
+        try {
+            if (id) {
+                // Update
+                await callGasApi('updateEvent', eventData);
+                showMessage('予定を更新しました！', 'success');
+            } else {
+                // Create
+                await callGasApi('addEvent', eventData);
+                showMessage('予定を追加しました！', 'success');
+            }
+
+            closeModal();
+            await loadEvents();
+        } catch (error) {
+            hideLoading();
+            showMessage('保存に失敗しました: ' + error.message, 'error');
+        }
     }
 
-    function deleteEvent() {
+    async function deleteEvent() {
         const id = eventIdInput.value;
         if (!id) return;
 
         if (confirm('本当にこの予定を削除しますか？')) {
-            events = events.filter(evt => evt.id !== id);
-            saveEvents();
-            closeModal();
+            showLoading();
+            try {
+                await callGasApi('deleteEvent', { eventId: id });
+                showMessage('予定を削除しました', 'success');
+                closeModal();
+                await loadEvents();
+            } catch (error) {
+                hideLoading();
+                showMessage('削除に失敗しました: ' + error.message, 'error');
+            }
         }
     }
 });
