@@ -476,7 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Create (新規予定の追加)
                 if (isMultiDay) {
-                    // 連続する予定の場合、各日付に個別に追加
+                    // 連続する予定の場合、一括送信用の配列を作成
+                    const eventsList = [];
                     const start = new Date(startDate);
                     const end = new Date(endDate);
                     const dayCount = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
@@ -491,18 +492,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         const d = String(currentDate.getDate()).padStart(2, '0');
                         const dateStr = `${y}-${m}-${d}`;
 
-                        const eventData = {
+                        eventsList.push({
                             title: title,
                             date: dateStr,
                             time: time,
                             description: description,
                             category: category
-                        };
-
-                        await callGasApi('addEvent', eventData);
+                        });
                     }
 
-                    showMessage(`${dayCount}日分の予定を追加しました！`, 'success');
+                    // 一括送信 (API呼び出しは1回だけ)
+                    if (eventsList.length > 0) {
+                        await callGasApi('addEvents', { events: eventsList });
+                        showMessage(`${eventsList.length}日分の予定を追加しました！`, 'success');
+                    }
                 } else {
                     // 単日の予定
                     const eventData = {
