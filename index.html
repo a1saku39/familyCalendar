@@ -135,6 +135,19 @@
                     <input type="date" id="eventDate" required>
                 </div>
                 <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="isMultiDay">
+                        <span>連続する予定</span>
+                    </label>
+                </div>
+                <div class="form-group" id="endDateGroup" style="display: none;">
+                    <label for="eventEndDate">終了日</label>
+                    <input type="date" id="eventEndDate">
+                    <p class="help-text" style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">
+                        開始日から終了日まで、毎日同じ予定が登録されます
+                    </p>
+                </div>
+                <div class="form-group">
                     <label for="eventTitle">タイトル</label>
                     <input type="text" id="eventTitle" placeholder="予定のタイトル (例: 買い物)" required>
                 </div>

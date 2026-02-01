@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventIdInput = document.getElementById('eventId');
     const modalTitle = document.getElementById('modalTitle');
     const deleteEventBtn = document.getElementById('deleteEventBtn');
+    const isMultiDayCheckbox = document.getElementById('isMultiDay');
+    const endDateGroup = document.getElementById('endDateGroup');
+    const eventEndDateInput = document.getElementById('eventEndDate');
 
     // Settings
     const settingsBtn = document.getElementById('settingsBtn');
@@ -187,6 +190,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         eventForm.addEventListener('submit', handleEventSubmit);
         deleteEventBtn.addEventListener('click', deleteEvent);
+
+        // Multi-day checkbox
+        isMultiDayCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                endDateGroup.style.display = 'block';
+                eventEndDateInput.required = true;
+            } else {
+                endDateGroup.style.display = 'none';
+                eventEndDateInput.required = false;
+                eventEndDateInput.value = '';
+            }
+        });
 
         // Settings
         settingsBtn.addEventListener('click', openSettingsModal);
@@ -407,6 +422,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeModal() {
         modal.classList.remove('open');
+
+        // スマホで入力後に画面サイズを元に戻す
+        // フォーカスを外してキーボードを閉じる
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+
+        // ビューポートを元のサイズにリセット
+        window.scrollTo(0, 0);
+
+        // 連続予定のチェックボックスをリセット
+        isMultiDayCheckbox.checked = false;
+        endDateGroup.style.display = 'none';
+        eventEndDateInput.required = false;
     }
 
     async function handleEventSubmit(e) {
@@ -414,33 +443,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const id = eventIdInput.value;
         const title = eventTitleInput.value;
-        const date = eventDateInput.value;
+        const startDate = eventDateInput.value;
+        const endDate = eventEndDateInput.value;
+        const isMultiDay = isMultiDayCheckbox.checked;
         const time = eventTimeInput.value;
         const description = eventDescInput.value;
         const category = document.querySelector('input[name="category"]:checked').value;
 
-        if (!title || !date) return;
+        if (!title || !startDate) return;
 
-        const eventData = {
-            id: id,
-            title: title,
-            date: date,
-            time: time,
-            description: description,
-            category: category
-        };
+        // 連続する予定の場合、終了日のバリデーション
+        if (isMultiDay && (!endDate || endDate < startDate)) {
+            showMessage('終了日は開始日以降を指定してください', 'error');
+            return;
+        }
 
         showLoading();
 
         try {
             if (id) {
-                // Update
+                // Update (既存の予定の更新)
+                const eventData = {
+                    id: id,
+                    title: title,
+                    date: startDate,
+                    time: time,
+                    description: description,
+                    category: category
+                };
                 await callGasApi('updateEvent', eventData);
                 showMessage('予定を更新しました！', 'success');
             } else {
-                // Create
-                await callGasApi('addEvent', eventData);
-                showMessage('予定を追加しました！', 'success');
+                // Create (新規予定の追加)
+                if (isMultiDay) {
+                    // 連続する予定の場合、各日付に個別に追加
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    const dayCount = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+                    for (let i = 0; i < dayCount; i++) {
+                        const currentDate = new Date(start);
+                        currentDate.setDate(start.getDate() + i);
+
+                        const dateStr = currentDate.toISOString().split('T')[0];
+
+                        const eventData = {
+                            title: title,
+                            date: dateStr,
+                            time: time,
+                            description: description,
+                            category: category
+                        };
+
+                        await callGasApi('addEvent', eventData);
+                    }
+
+                    showMessage(`${dayCount}日分の予定を追加しました！`, 'success');
+                } else {
+                    // 単日の予定
+                    const eventData = {
+                        title: title,
+                        date: startDate,
+                        time: time,
+                        description: description,
+                        category: category
+                    };
+                    await callGasApi('addEvent', eventData);
+                    showMessage('予定を追加しました！', 'success');
+                }
             }
 
             closeModal();

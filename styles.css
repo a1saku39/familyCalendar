@@ -218,6 +218,7 @@ body {
 .logo i {
     font-size: 1.5rem;
     background: var(--primary-gradient);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -227,6 +228,7 @@ body {
     line-height: 1;
     font-weight: 700;
     background: var(--primary-gradient);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -567,6 +569,26 @@ body {
     margin-bottom: 8px;
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #6366f1;
+}
+
+.checkbox-label span {
+    color: var(--text-primary);
+    font-size: 0.95rem;
 }
 
 .form-group input[type="text"],
